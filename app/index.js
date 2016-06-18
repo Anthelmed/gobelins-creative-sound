@@ -1,3 +1,6 @@
+/*
+* Importe les classes utiles au bon déroulement de l'application
+*/
 import singTimeline from './singTimeline.js';
 import Head from './head.js';
 import Mouth from './mouth.js';
@@ -18,7 +21,9 @@ var s = function( p ) {
   var eyes = [];
   var backgrounds = [];
 
-  //preload
+  /* Preload
+  *  Charge les contenus (audio, image ...) pendant l'écran de chargement
+  */
   p.preload = function() {
     //load img
     imgs[0] = p.loadImage('img/head1.svg');
@@ -31,7 +36,9 @@ var s = function( p ) {
     sounds[1] = p.loadSound('sound/instrumental.mp3');
   }
 
-  //setup
+  /* Setup
+  * Créer le canvas, instancie les objets le composant (heads,mouthes,eyes,backgrounds) et démarre les pistes audio
+  */
   p.setup = function() {
     p.createCanvas(windowWidth, windowHeight);
 
@@ -65,10 +72,10 @@ var s = function( p ) {
     //create heads
     for (var h = 0; h < imgs.length; h++) {
       var options = {
-        width: imgs[h].width,
-        height: imgs[h].height,
-        x: (windowWidth / 4) * h + (windowWidth / 4 - imgs[h].width) / 2,
-        y: windowHeight - imgs[h].height,
+        width: imgs[h].width * 2.5,
+        height: imgs[h].height * 2.5,
+        x: (windowWidth / 4) * h + (windowWidth / 4 - imgs[h].width * 2.5) / 2,
+        y: windowHeight - imgs[h].height * 2.5,
         img: imgs[h]
       };
       var head = new Head(options);
@@ -111,9 +118,9 @@ var s = function( p ) {
     for (var e = 0; e < imgs.length; e++) {
       var options = {
         width: 35,
-        height: 85,
+        height: 70,
         x: (windowWidth / 4) * e + (windowWidth / 4 - 35) / 2,
-        y: windowHeight - heads[e].height / 2.5 - 85 / 2,
+        y: windowHeight - heads[e].height / 2.5 - 60,
         color: p.color(0,0,0),
         space: 0,
         delay: p.round(p.random(600,1000))
@@ -134,7 +141,7 @@ var s = function( p ) {
           options.space = 130;
           break;
         case 3:
-          options.y += 11;
+          options.y += 25;
           options.height += 3;
           options.space = 145;
           break;
@@ -147,7 +154,7 @@ var s = function( p ) {
     for (var i = 0; i < sounds.length; i++) {
       amplitudes[i] = new p5.Amplitude();
       // sounds[i].setVolume(0);
-      sounds[i].setVolume(0.1);
+      sounds[i].setVolume(0.5);
       sounds[i].play();
       amplitudes[i].setInput(sounds[i]);
     }
@@ -156,7 +163,9 @@ var s = function( p ) {
     fft.setInput(sounds[1]);
   };
 
-  //draw
+  /*  Draw
+  * Redessine à chaque tick (60 fps) les éléments graphiques créant ainsi une illusion d'animation
+  */
   p.draw = function() {
     p.background(255);
 
@@ -167,12 +176,12 @@ var s = function( p ) {
     }
     if (fft) {
       fft.analyze();
+      //Quatres plage de fréquence pour les quatre "tube" de couleur
       energizes[0] = fft.getEnergy('bass');
       energizes[1] = fft.getEnergy('lowMid');
       energizes[2] = fft.getEnergy('mid');
       energizes[3] = fft.getEnergy('highMid');
     }
-
 
     //backgrounds
     for (var b = 0; b < backgrounds.length; b++) {
@@ -203,7 +212,7 @@ var s = function( p ) {
       for (var s = 0; s < mouthes[m].singTimeline.length; s++) {
         if (currentTime >= mouthes[m].singTimeline[s].start && currentTime <= mouthes[m].singTimeline[s].stop) {
           mouthes[m].sing = true;
-          mouthes[m].height = p.map(levelVoice, 0, 0.013, 0, 15);
+          mouthes[m].height = p.map(levelVoice, 0, 0.07, 0, 15);
         } else {
           mouthes[m].height = 0;
         }
@@ -212,14 +221,13 @@ var s = function( p ) {
       }
     }
 
-    //all
+    //all mouthes
     var allTimeline = singTimeline[4];
     for (var a = 0; a < allTimeline.length; a++) {
       if (currentTime >= allTimeline[a].start && currentTime <= allTimeline[a].stop) {
         for (var m = 0; m < mouthes.length; m++) {
           mouthes[m].sing = true;
-          console.log(levelVoice);
-          mouthes[m].height = p.map(levelVoice, 0, 0.013, 0, 15);
+          mouthes[m].height = p.map(levelVoice, 0, 0.07, 0, 15);
           //draw mouthes
           mouthes[m].draw(p);
         }
@@ -234,7 +242,9 @@ var s = function( p ) {
 
   };
 
-  //resize
+  /* WindowResized
+  * Redimensionne les éléments en fonction de la taille de la fenêtre du navigateur
+  */
   p.windowResized = function() {
     windowHeight = window.innerHeight;
     windowWidth = window.innerWidth;
